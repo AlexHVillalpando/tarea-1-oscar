@@ -22,7 +22,7 @@ export class Server {
 		this.app.use(this.routes);
 
 		this.app.listen(this.port, () => {
-			console.log(`Server started on port ${this.port} 😊😊😊`);
+			console.log(`Server started on port ${this.port} 😉`);
 		});
 	}
 }
