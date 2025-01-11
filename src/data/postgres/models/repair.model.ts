@@ -12,6 +12,7 @@ export class Repair extends BaseEntity {
 
 	@Column('varchar', {
 		length: 15,
+		default: 'pending',
 		nullable: false,
 	})
 	status: string;

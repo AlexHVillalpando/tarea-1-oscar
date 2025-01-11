@@ -32,7 +32,6 @@ export class RepairService {
 		const createAppointment = new Repair();
 
 		createAppointment.date = createDate.date;
-		createAppointment.status = createDate.status;
 
 		try {
 			return await createAppointment.save();
@@ -41,13 +40,13 @@ export class RepairService {
 		}
 	}
 
-	async completedRepair(id: string, updateStatus: any) {
-		const statusUpdated = await this.findAPending(id);
+	async completedRepair(id: string) {
+		const statusCompleted = await this.findAPending(id);
 
-		statusUpdated.status = updateStatus.status.toLowerCase().trim();
+		statusCompleted.status = 'completed';
 
 		try {
-			return await statusUpdated.save();
+			return await statusCompleted.save();
 		} catch (error) {
 			throw new Error('❌ Error updating status.');
 		}
@@ -59,7 +58,7 @@ export class RepairService {
 		deletedRepair.status = 'cancelled';
 
 		try {
-			deletedRepair.save();
+			return await deletedRepair.save();
 		} catch (error) {
 			throw new Error('❌ Error deleting repair.');
 		}
