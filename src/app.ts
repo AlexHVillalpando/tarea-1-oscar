@@ -1,8 +1,8 @@
 import 'reflect-metadata';
+import { envs } from './config';
 import { AppRoutes } from './presentation/routes';
 import { Server } from './presentation/server';
 import { PostgresDatabase } from './data/postgres/postgres-database';
-import { envs } from './config';
 
 async function main() {
 	const postgres = new PostgresDatabase({

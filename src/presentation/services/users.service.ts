@@ -1,36 +1,69 @@
+import { User } from '../../data';
+
 export class UsersService {
 	constructor() {}
 
 	async getAllUsers() {
-		return {
-			message: 'Obtener la lista de los usuarios en la base de datos',
-		};
+		try {
+			return await User.find({
+				where: {
+					status: true,
+				},
+			});
+		} catch (error) {
+			throw new Error('❌ Error obteniendo usuarios.');
+		}
 	}
 
-	async getAUser() {
-		return {
-			message: 'Obteniendo un solo usuario dado un id',
-		};
+	async getAUser(id: string) {
+		const getUser = await User.findOne({
+			where: {
+				id,
+				status: true,
+			},
+		});
+		if (!getUser) {
+			throw new Error('❌ User not found.');
+		}
+		return getUser;
 	}
 
-	async createAUser() {
-		return {
-			message:
-				'Crear un nuevo usuario, se debe proporcionar por el req.body (name, email, password, role), el role (rol) puede ser cliente o employee.',
-		};
+	async createAUser(createData: any) {
+		const createUser = new User();
+
+		createUser.name = createData.name;
+		createUser.email = createData.email;
+		createUser.password = createData.password;
+		createUser.role = createData.role;
+
+		try {
+			return await createUser.save();
+		} catch (error) {
+			throw new Error('❌ Error creating user.');
+		}
 	}
 
-	async editUser() {
-		return {
-			message:
-				'Actualizar los datos de un usuario dado un id, solo puede actualizar su name y email.',
-		};
+	async editUser(id: string, editData: any) {
+		const editUser = await this.getAUser(id);
+		editUser.name = editData.name.toLowerCase().trim();
+		editUser.password = editData.password;
+
+		try {
+			return await editUser.save();
+		} catch (error) {
+			throw new Error('❌ Error updating user.');
+		}
 	}
 
-	async disabledUser() {
-		return {
-			message:
-				'Deshabilitar la cuenta de un usuario, cambiar status a disabled',
-		};
+	async disabledUser(id: string) {
+		const deletedUser = await this.getAUser(id);
+
+		deletedUser.status = false;
+
+		try {
+			deletedUser.save();
+		} catch (error) {
+			throw new Error('❌ Error deleting user.');
+		}
 	}
 }

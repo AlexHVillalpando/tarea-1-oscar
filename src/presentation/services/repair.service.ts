@@ -1,36 +1,67 @@
+import { Repair } from '../../data';
+
 export class RepairService {
 	constructor() {}
 
 	async findAllPendings() {
-		return {
-			message: 'Obtener la lista de motos pendientes (pending) de reparar',
-		};
+		try {
+			return await Repair.find({
+				where: {
+					status: 'pending',
+				},
+			});
+		} catch (error) {
+			throw new Error('❌ Error fetching repairs.');
+		}
 	}
 
-	async findAPending() {
-		return {
-			message: 'Obtener una moto pendiente de reparar por su id',
-		};
+	async findAPending(id: string) {
+		const findPending = await Repair.findOne({
+			where: {
+				id,
+				status: 'pending',
+			},
+		});
+		if (!findPending) {
+			throw new Error('❌ Repair not found.');
+		}
+		return findPending;
 	}
 
-	async createADate() {
-		return {
-			message:
-				'Crear una cita, se debe incluir en elreq.body lo siguiente (date, userId) El userId siendo el id del usuario quien solicita la reparación.',
-		};
+	async createADate(createDate: any) {
+		const createAppointment = new Repair();
+
+		createAppointment.date = createDate.date;
+		createAppointment.status = createDate.status;
+
+		try {
+			return await createAppointment.save();
+		} catch (error) {
+			throw new Error('❌ Error creating appointment.');
+		}
 	}
 
-	async completedRepair() {
-		return {
-			message:
-				'Actualizar el status de una reparación ha completado (cambiar status a completed)',
-		};
+	async completedRepair(id: string, updateStatus: any) {
+		const statusUpdated = await this.findAPending(id);
+
+		statusUpdated.status = updateStatus.status.toLowerCase().trim();
+
+		try {
+			return await statusUpdated.save();
+		} catch (error) {
+			throw new Error('❌ Error updating status.');
+		}
 	}
 
-	async cancelledRepair() {
-		return {
-			message:
-				'Cancelar la reparación de un usuario (cambiar status a cancelled)',
-		};
+	async cancelledRepair(id: string) {
+		const deletedRepair = await this.findAPending(id);
+
+		deletedRepair.status = 'cancelled';
+
+		try {
+			deletedRepair.save();
+		} catch (error) {
+			throw new Error('❌ Error deleting repair.');
+		}
 	}
 }

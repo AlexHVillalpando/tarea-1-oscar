@@ -11,10 +11,11 @@ export class Repair extends BaseEntity {
 	date: Date;
 
 	@Column('varchar', {
-		length: 80,
+		length: 15,
 		nullable: false,
 	})
 	status: string;
 
-	//userId
+	// @PrimaryGeneratedColumn('uuid')
+	// userId: string
 }
