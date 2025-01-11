@@ -13,7 +13,7 @@ export class UsersRoutes {
 		router.get('/:id', usersController.getAUser);
 		router.post('/', usersController.createAUser);
 		router.patch('/:id', usersController.editUser);
-		router.delete('/', usersController.disabledUser);
+		router.delete('/:id', usersController.disabledUser);
 
 		return router;
 	}

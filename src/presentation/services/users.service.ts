@@ -7,7 +7,7 @@ export class UsersService {
 		try {
 			return await User.find({
 				where: {
-					status: true,
+					status: 'available',
 				},
 			});
 		} catch (error) {
@@ -19,7 +19,7 @@ export class UsersService {
 		const getUser = await User.findOne({
 			where: {
 				id,
-				status: true,
+				status: 'available',
 			},
 		});
 		if (!getUser) {
@@ -31,7 +31,7 @@ export class UsersService {
 	async createAUser(createData: any) {
 		const createUser = new User();
 
-		createUser.name = createData.name;
+		createUser.name = createData.name.toLowerCase().trim();
 		createUser.email = createData.email;
 		createUser.password = createData.password;
 		createUser.role = createData.role;
@@ -46,7 +46,7 @@ export class UsersService {
 	async editUser(id: string, editData: any) {
 		const editUser = await this.getAUser(id);
 		editUser.name = editData.name.toLowerCase().trim();
-		editUser.password = editData.password;
+		editUser.email = editData.email;
 
 		try {
 			return await editUser.save();
@@ -58,7 +58,7 @@ export class UsersService {
 	async disabledUser(id: string) {
 		const deletedUser = await this.getAUser(id);
 
-		deletedUser.status = false;
+		deletedUser.status = 'disabled';
 
 		try {
 			deletedUser.save();
