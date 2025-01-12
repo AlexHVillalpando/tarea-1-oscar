@@ -14,6 +14,7 @@ export class User extends BaseEntity {
 	@Column('varchar', {
 		length: 80,
 		nullable: false,
+		//unique:true??
 	})
 	email: string;
 

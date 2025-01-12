@@ -1,4 +1,5 @@
 import { User } from '../../data';
+import { CreateUserDTO, CustomError, UpdateUserDTO } from '../../domain';
 
 export class UsersService {
 	constructor() {}
@@ -11,7 +12,7 @@ export class UsersService {
 				},
 			});
 		} catch (error) {
-			throw new Error('❌ Error obteniendo usuarios.');
+			throw CustomError.internalServer('Error fetching users.');
 		}
 	}
 
@@ -23,12 +24,12 @@ export class UsersService {
 			},
 		});
 		if (!getUser) {
-			throw new Error('❌ User not found.');
+			throw CustomError.internalServer('User not found.');
 		}
 		return getUser;
 	}
 
-	async createAUser(createData: any) {
+	async createAUser(createData: CreateUserDTO) {
 		const createUser = new User();
 
 		createUser.name = createData.name.toLowerCase().trim();
@@ -39,11 +40,11 @@ export class UsersService {
 		try {
 			return await createUser.save();
 		} catch (error) {
-			throw new Error('❌ Error creating user.');
+			throw CustomError.internalServer('Error registering user.');
 		}
 	}
 
-	async editUser(id: string, editData: any) {
+	async editUser(id: string, editData: UpdateUserDTO) {
 		const editUser = await this.getAUser(id);
 		editUser.name = editData.name.toLowerCase().trim();
 		editUser.email = editData.email;
@@ -51,7 +52,7 @@ export class UsersService {
 		try {
 			return await editUser.save();
 		} catch (error) {
-			throw new Error('❌ Error updating user.');
+			throw CustomError.internalServer('Error updating user data.');
 		}
 	}
 
@@ -63,7 +64,7 @@ export class UsersService {
 		try {
 			deletedUser.save();
 		} catch (error) {
-			throw new Error('❌ Error deleting user.');
+			throw CustomError.internalServer('Error registering user.');
 		}
 	}
 }
