@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { UsersService } from '../services/users.service';
 import { CreateUserDTO, CustomError, UpdateUserDTO } from '../../domain';
+import { RegisterDTO } from '../../domain/dtos/users/register.user.dto';
+import { LoginUserDTO } from '../../domain/dtos/users/login.user.dto';
 
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
@@ -65,6 +67,25 @@ export class UsersController {
 			.then((data) => {
 				return res.status(201).json(data);
 			})
+			.catch((error: unknown) => this.handleError(error, res));
+	};
+
+	register = (req: Request, res: Response) => {
+		const [error, registerUserDto] = RegisterDTO.create(req.body);
+		if (error) return res.status(422).json({ message: error });
+		this.usersService
+			.register(registerUserDto!)
+			.then((data: any) => res.status(200).json(data))
+			.catch((error: unknown) => this.handleError(error, res));
+	};
+
+	login = (req: Request, res: Response) => {
+		const [error, loginUserDto] = LoginUserDTO.create(req.body);
+		if (error) return res.status(422).json({ message: error });
+
+		this.usersService
+			.login(loginUserDto!)
+			.then((data: any) => res.status(200).json(data))
 			.catch((error: unknown) => this.handleError(error, res));
 	};
 }

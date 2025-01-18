@@ -1,5 +1,10 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+export enum RepairStatus {
+	PENDING = 'PENDING',
+	COMPLETED = 'COMPLETED',
+	CANCELLED = 'CANCELLED',
+}
 @Entity()
 export class Repair extends BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
@@ -10,13 +15,14 @@ export class Repair extends BaseEntity {
 	})
 	date: Date;
 
-	@Column('varchar', {
-		length: 15,
-		default: 'pending',
-		nullable: false,
+	@Column('enum', {
+		enum: RepairStatus,
+		default: RepairStatus.PENDING,
 	})
-	status: string;
+	status: RepairStatus;
 
-	// @PrimaryGeneratedColumn('uuid')
-	// userId: string
+	@Column('varchar', {
+		nullable: true,
+	})
+	userId: string;
 }

@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { RepairService } from '../services/repair.service';
-import { CreateAppointmentDTO, CustomError } from '../../domain';
+import {
+	CreateAppointmentDTO,
+	CustomError,
+	UpdateAppointmentDTO,
+} from '../../domain';
 
 export class RepairController {
 	constructor(private readonly repairService: RepairService) {}
@@ -49,8 +53,12 @@ export class RepairController {
 
 	completedRepair = (req: Request, res: Response) => {
 		const { id } = req.params;
+		const [error, updatedStatusDto] = UpdateAppointmentDTO.updateRepair(
+			req.body,
+		);
+		if (error) return res.status(422).json({ message: error });
 		this.repairService
-			.completedRepair(id)
+			.completedRepair(id, updatedStatusDto!)
 			.then((data: any) => {
 				return res.status(201).json(data);
 			})

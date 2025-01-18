@@ -12,6 +12,9 @@ export class UsersRoutes {
 		router.get('/', usersController.getAllUsers);
 		router.get('/:id', usersController.getAUser);
 		router.post('/', usersController.createAUser);
+		router.post('/register', usersController.register);
+		router.post('/login', usersController.login);
+
 		router.patch('/:id', usersController.editUser);
 		router.delete('/:id', usersController.disabledUser);
 

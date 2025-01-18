@@ -1,5 +1,21 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+	BaseEntity,
+	BeforeInsert,
+	Column,
+	Entity,
+	PrimaryGeneratedColumn,
+} from 'typeorm';
+import { encryptAdapter } from '../../../config/bcrypt.adapter';
 
+export enum UserStatus {
+	AVAILABLE = 'AVAILABLE',
+	DISABLED = 'DISABLED',
+}
+
+export enum UserRole {
+	EMPLOYEE = 'EMPLOYEE',
+	CLIENT = 'CLIENT',
+}
 @Entity()
 export class User extends BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
@@ -14,7 +30,7 @@ export class User extends BaseEntity {
 	@Column('varchar', {
 		length: 80,
 		nullable: false,
-		//unique:true??
+		unique: true,
 	})
 	email: string;
 
@@ -24,15 +40,20 @@ export class User extends BaseEntity {
 	})
 	password: string;
 
-	@Column('varchar', {
-		length: 80,
-		nullable: false,
+	@Column('enum', {
+		enum: UserRole,
+		default: UserRole.CLIENT,
 	})
-	role: string;
+	role: UserRole;
 
-	@Column('varchar', {
-		length: 15,
-		default: 'available',
+	@Column('enum', {
+		enum: UserStatus,
+		default: UserStatus.AVAILABLE,
 	})
-	status: string;
+	status: UserStatus;
+
+	@BeforeInsert()
+	encryptedPassword() {
+		this.password = encryptAdapter.hash(this.password);
+	}
 }

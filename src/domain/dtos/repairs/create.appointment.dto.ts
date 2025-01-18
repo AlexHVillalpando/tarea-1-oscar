@@ -13,7 +13,7 @@ export class CreateAppointmentDTO {
 		if (!date) return ['Date field is empty. Enter a date', undefined]; //no es necesario poner undefined si es undefined
 		if (appointmentDate.getTime() < currentDate.getTime())
 			return [
-				'Appointment date must not on the same date or before the current date.',
+				'Appointment date must not be scheduled on the same date or before the current date.',
 			];
 
 		return [undefined, new CreateAppointmentDTO(date)];
