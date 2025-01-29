@@ -28,7 +28,7 @@ export class UsersService {
 			},
 		});
 		if (!getUser) {
-			throw CustomError.internalServer('User not found.');
+			throw CustomError.notFound('User not found.');
 		}
 		return getUser;
 	}

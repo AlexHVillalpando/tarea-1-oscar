@@ -1,18 +1,24 @@
-import { Repair, RepairStatus } from '../../data';
-import {
-	CreateAppointmentDTO,
-	CustomError,
-	UpdateAppointmentDTO,
-} from '../../domain';
+import { In } from 'typeorm';
+import { protectAccountOwner } from '../../config/validate-owner';
+import { Repair, RepairStatus, User } from '../../data';
+import { CreateAppointmentDTO, CustomError } from '../../domain';
 
 export class RepairService {
-	constructor() {}
+	constructor() {} //public readonly usersService: UsersService
 
 	async findAllPendings() {
 		try {
 			return await Repair.find({
 				where: {
-					status: RepairStatus.PENDING,
+					status: In([RepairStatus.PENDING, RepairStatus.COMPLETED]),
+				},
+				relations: ['user'], //tiene que ser el nombre de la propiedad tal y como la pusimos en el modelo User.
+				select: {
+					user: {
+						name: true,
+						role: true,
+						id: true,
+					},
 				},
 			});
 		} catch (error) {
@@ -26,6 +32,14 @@ export class RepairService {
 				id,
 				status: RepairStatus.PENDING,
 			},
+			relations: ['user'],
+			select: {
+				user: {
+					name: true,
+					role: true,
+					id: true,
+				},
+			},
 		});
 		if (!findPending) {
 			throw CustomError.internalServer('Error fetching data.');
@@ -33,10 +47,11 @@ export class RepairService {
 		return findPending;
 	}
 
-	async createADate(createDate: CreateAppointmentDTO) {
+	async createADate(createDate: CreateAppointmentDTO, user: User) {
 		const createAppointment = new Repair();
 
 		createAppointment.date = createDate.date;
+		createAppointment.user = user;
 
 		try {
 			return await createAppointment.save();
@@ -45,8 +60,12 @@ export class RepairService {
 		}
 	}
 
-	async completedRepair(id: string, complData: UpdateAppointmentDTO) {
+	async completedRepair(id: string, sessionUserId: string) {
 		const statusCompleted = await this.findAPending(id);
+		const isOwner = protectAccountOwner(statusCompleted.user.id, sessionUserId);
+
+		if (!isOwner)
+			throw CustomError.unAuthorized('You are not the owner of this content.');
 
 		statusCompleted.status = RepairStatus.COMPLETED;
 
@@ -57,8 +76,12 @@ export class RepairService {
 		}
 	}
 
-	async cancelledRepair(id: string) {
+	async cancelledRepair(id: string, sessionUserId: string) {
 		const deletedRepair = await this.findAPending(id);
+		const isOwner = protectAccountOwner(deletedRepair.user.id, sessionUserId);
+
+		if (!isOwner)
+			throw CustomError.unAuthorized('You are not the owner of this content.');
 
 		deletedRepair.status = RepairStatus.CANCELLED;
 

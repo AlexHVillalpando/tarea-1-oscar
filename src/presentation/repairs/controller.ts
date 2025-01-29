@@ -1,10 +1,6 @@
 import { Request, Response } from 'express';
 import { RepairService } from '../services/repair.service';
-import {
-	CreateAppointmentDTO,
-	CustomError,
-	UpdateAppointmentDTO,
-} from '../../domain';
+import { CreateAppointmentDTO, CustomError } from '../../domain';
 
 export class RepairController {
 	constructor(private readonly repairService: RepairService) {}
@@ -40,11 +36,12 @@ export class RepairController {
 
 	createADate = (req: Request, res: Response) => {
 		const [error, createAppointmentDto] = CreateAppointmentDTO.create(req.body);
+		const userId = req.body.sessionUser;
 
 		if (error) return res.status(422).json({ message: error });
 
 		this.repairService
-			.createADate(createAppointmentDto!)
+			.createADate(createAppointmentDto!, userId)
 			.then((data: any) => {
 				return res.status(201).json(data);
 			})
@@ -53,24 +50,24 @@ export class RepairController {
 
 	completedRepair = (req: Request, res: Response) => {
 		const { id } = req.params;
-		const [error, updatedStatusDto] = UpdateAppointmentDTO.updateRepair(
-			req.body,
-		);
-		if (error) return res.status(422).json({ message: error });
+		const sessionUserId = req.body.sessionUser.id;
 		this.repairService
-			.completedRepair(id, updatedStatusDto!)
+			.completedRepair(id, sessionUserId)
 			.then((data: any) => {
-				return res.status(201).json(data);
+				return res.status(200).json(data);
 			})
 			.catch((error: unknown) => this.handleError(error, res));
 	};
 
 	cancelledRepair = (req: Request, res: Response) => {
 		const { id } = req.params;
+		const sessionUserId = req.body.sessionUser.id;
 		this.repairService
-			.cancelledRepair(id)
-			.then((data: any) => {
-				return res.status(200).json(null);
+			.cancelledRepair(id, sessionUserId)
+			.then(() => {
+				return res
+					.status(200)
+					.json({ message: 'Appointment deleted succesfully.' });
 			})
 			.catch((error: unknown) => this.handleError(error, res));
 	};
